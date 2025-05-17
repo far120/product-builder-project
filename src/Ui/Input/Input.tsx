@@ -1,11 +1,13 @@
 import { InputHTMLAttributes } from "react";
+import { useTheme } from "../utils/ThemeContext";
 
-interface IProps extends InputHTMLAttributes<HTMLInputElement> {}
+interface IProps extends InputHTMLAttributes<HTMLInputElement> { }
 
 const Input = ({ ...rest }: IProps) => {
+  const { themeStyles } = useTheme();
   return (
     <input
-      className="border-[1px] border-gray-300 shadow-md focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded-lg px-3 py-3 text-md"
+      className={`border shadow-md focus:outline-none focus:ring-2 rounded-lg px-3 py-3 text-md transition ${themeStyles.input}`}
       {...rest}
     />
   );
