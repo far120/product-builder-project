@@ -14,6 +14,12 @@ function AppContent() {
   const [product, setProduct] = useState<IProduct | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [isupdate, setIsUpdate] = useState(false)
+  // Cart and Wishlist state
+  const [cart, setCart] = useState<IProduct[]>([]);
+  const [wishlist, setWishlist] = useState<IProduct[]>([]);
+  const [showCart, setShowCart] = useState(false);
+  const [showWishlist, setShowWishlist] = useState(false);
+
   function open() {
     setIsOpen(true)
   }
@@ -23,8 +29,33 @@ function AppContent() {
     setIsUpdate(false);
   }
 
+  // Cart/Wishlist handlers
+  function addToCart(product: IProduct) {
+    setCart((prev) => prev.find((p) => p.id === product.id) ? prev : [...prev, product]);
+  }
+  function addToWishlist(product: IProduct) {
+    setWishlist((prev) => prev.find((p) => p.id === product.id) ? prev : [...prev, product]);
+  }
+  function removeFromCart(id: string) {
+    setCart((prev) => prev.filter((p) => p.id !== id));
+  }
+  function removeFromWishlist(id: string) {
+    setWishlist((prev) => prev.filter((p) => p.id !== id));
+  }
+
   const Show_Data = products.map((product) => {
-    return <Card_Prouduct key={product.id} product={product} setproducts={setproducts} update={isupdate} setupdate={setIsUpdate} setProduct={setProduct} />;
+    return (
+      <Card_Prouduct
+        key={product.id}
+        product={product}
+        setproducts={setproducts}
+        update={isupdate}
+        setupdate={setIsUpdate}
+        setProduct={setProduct}
+        addToCart={addToCart}
+        addToWishlist={addToWishlist}
+      />
+    );
   });
 
   return (
@@ -37,6 +68,74 @@ function AppContent() {
         >
           {theme === "light" ? "🌙 Dark" : "☀️ Light"}
         </button>
+        {/* Cart/Wishlist Buttons */}
+        <div className="fixed top-4 left-4 z-50 flex gap-2">
+          <button className={`px-4 py-2 rounded-full font-semibold shadow ${themeStyles.button}`} onClick={() => setShowCart(true)}>
+            🛒 Cart ({cart.length})
+          </button>
+          <button className={`px-4 py-2 rounded-full font-semibold shadow ${themeStyles.button}`} onClick={() => setShowWishlist(true)}>
+            💖 Wishlist ({wishlist.length})
+          </button>
+        </div>
+        {/* Cart Modal */}
+        {showCart && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center rgba(0,0,0,0.54)] backdrop-blur-sm"
+            onClick={() => setShowCart(false)}
+          >
+            <div
+              className={`max-w-md w-full p-6 rounded-2xl shadow-2xl ${themeStyles.card} ${themeStyles.text} relative`}
+              onClick={e => e.stopPropagation()}
+            >
+              <button className="absolute top-2 right-2 text-xl" onClick={() => setShowCart(false)}>✖</button>
+              <h2 className="text-2xl font-bold mb-4">Cart</h2>
+              {cart.length === 0 ? <p>No items in cart.</p> : (
+                <>
+                  <ul className="space-y-2">
+                    {cart.map((item) => (
+                      <li key={item.id} className="flex justify-between items-center border-b pb-2">
+                        <span>{item.title}</span>
+                        <button className="text-red-500" onClick={() => removeFromCart(item.id?.toString() || "")}>Remove</button>
+                      </li>
+                    ))}
+                  </ul>
+                  {/* Total Price Calculation */}
+                  <div className="mt-6 flex justify-between items-center text-lg font-semibold  pt-4">
+                    <span>Total:</span>
+                    <span>
+                      {cart.reduce((sum, item) => sum + (typeof item.price === 'number' ? item.price : parseFloat(item.price)), 0).toLocaleString(undefined, { style: 'currency', currency: 'USD' })}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+        {/* Wishlist Modal */}
+        {showWishlist && (
+            <div
+            className="fixed inset-0 z-50 flex items-center justify-center rgba(0,0,0,0.54)] backdrop-blur-sm"
+            onClick={() => setShowWishlist(false)}
+            >
+            <div
+              className={`max-w-md w-full p-6 rounded-2xl shadow-2xl ${themeStyles.card} ${themeStyles.text} relative`}
+              onClick={e => e.stopPropagation()}
+            >
+              <button className="absolute top-2 right-2 text-xl" onClick={() => setShowWishlist(false)}>✖</button>
+              <h2 className="text-2xl font-bold mb-4">Wishlist</h2>
+              {wishlist.length === 0 ? <p>No items in wishlist.</p> : (
+              <ul className="space-y-2">
+                {wishlist.map((item) => (
+                <li key={item.id} className="flex justify-between items-center border-b pb-2">
+                  <span>{item.title}</span>
+                  <button className="text-red-500" onClick={() => removeFromWishlist(item.id?.toString() || "")}>Remove</button>
+                </li>
+                ))}
+              </ul>
+              )}
+            </div>
+            </div>
+        )}
         <h1 className={`text-4xl font-bold my-4 text-center ${themeStyles.text}`}>Product List</h1>
         <Button className={`w-full h-full py-2 rounded-lg transition duration-300 ${themeStyles.button}`} onClick={open}>Add Product</Button>
         {isupdate && (

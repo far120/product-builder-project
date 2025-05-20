@@ -8,7 +8,15 @@ import MyModal from "../Ui/Model/Model"
 import { toast } from "react-toastify"
 import { useTheme } from "../Ui/utils/ThemeContext";
 
-export default function Card_Prouduct({ product, setproducts, update, setupdate, setProduct }: { product: IProduct, setproducts: React.Dispatch<React.SetStateAction<IProduct[]>>, update: boolean, setupdate: React.Dispatch<React.SetStateAction<boolean>>, setProduct: React.Dispatch<React.SetStateAction<IProduct | null>> }) {
+export default function Card_Prouduct({ product, setproducts, update, setupdate, setProduct, addToCart, addToWishlist }: {
+  product: IProduct,
+  setproducts: React.Dispatch<React.SetStateAction<IProduct[]>>,
+  update: boolean,
+  setupdate: React.Dispatch<React.SetStateAction<boolean>>,
+  setProduct: React.Dispatch<React.SetStateAction<IProduct | null>>,
+  addToCart?: (product: IProduct) => void,
+  addToWishlist?: (product: IProduct) => void,
+}) {
   const { themeStyles } = useTheme();
   const { title, description, imageURL, price, colors, category } = product
   const [open, setopen] = useState(false)
@@ -62,6 +70,10 @@ export default function Card_Prouduct({ product, setproducts, update, setupdate,
         <div className="flex space-x-2 my-2">
           <Button className={`w-1/2 py-2 rounded-lg transition duration-300 font-semibold ${themeStyles.button}`} onClick={() => handleEdit(product)}>Edit</Button>
           <Button className="w-1/2 py-2 bg-red-600 text-white rounded-lg hover:bg-red-800 transition duration-300" onClick={() => { setopen(true); setDeleteId(product.id ?? "") }} >Remove</Button>
+        </div>
+        <div className="flex space-x-2 my-2">
+          {addToCart && <Button className="w-full h-full py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300" onClick={() => addToCart(product)}>Add to Cart</Button>}
+          {addToWishlist && <Button className="w-full h-full py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition duration-300" onClick={() => addToWishlist(product)}>Add to Wishlist</Button>}
         </div>
       </div>
       <MyModal openmodel={open} closemodel={closemodel} title="Delete Confirmation">
